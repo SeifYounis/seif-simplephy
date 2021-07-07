@@ -1,0 +1,16 @@
+{
+    "name":"malago/psyphy",
+    "description":"PsyPhy",
+    "require": {
+        "google/apiclient": ">=2.4.1",
+        "kreait/firebase-php": "^5.0",
+        "components/font-awesome":">5.12"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "cp vendor/components/font-awesome/css/all.css css/fontawesome.css &",
+            "mkdir webfonts &",
+            "cp vendor/components/font-awesome/webfonts/* webfonts "
+        ]
+    }
+}

@@ -1,0 +1,381 @@
+<head>
+    <meta charset="UTF-8">
+    <title>SimplePhy - Quick online psychophysics experiments for all</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <!-- <script src="js/jquery.key.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.4/mobile-detect.min.js"></script>
+    <!-- <script src="js/functions.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/google_drive.js"></script> -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+
+<body>
+    <script>
+        var path = window.location.href;
+        var directoryPath = path.substring(0, path.lastIndexOf('/') + 1);
+
+        if (directoryPath.includes("php") || directoryPath.includes("experiment")) {
+            directoryPath = directoryPath.split("/").slice(0,-3).join("/")+"/";
+        }
+        $(document).ready(function () {
+            $.getScript(directoryPath + "js/jquery.key.js", function () {
+                $.getScript(directoryPath + "js/functions.js", function () {
+                    $.getScript(directoryPath + "js/main.js", function () {
+                        $.getScript(directoryPath + "js/grid.js", function () {
+                            $.getScript(directoryPath + "js/google_drive.js");
+                        });
+                    });
+                });
+            });
+            $('head').append('<link rel="stylesheet" type="text/css" href="' + directoryPath + 'css/fontawesome.css">');
+            $('head').append('<link rel="stylesheet" type="text/css" href="' + directoryPath + 'css/style.css">');
+
+        });
+    </script>
+    <div class="background">
+        <div id="form-container">
+            <img src="/images/simple_phy.svg" class="logo" width="600">
+
+            <p class="home-instructions"><strong>Try the test experiment: </strong>Enter your participant ID and click
+                on Start. Calibration will start first.</p>
+
+            <div class="credits">Developed by <a
+                    href="javascript:location='mailto:\u006d\u0069\u0067\u0075\u0065\u006c\u0061\u006e\u0067\u0065\u006c\u002e\u006c\u0061\u0067\u006f\u0040\u0067\u006d\u0061\u0069\u006c\u002e\u0063\u006f\u006d';void 0">Miguel
+                    Lago</a>
+                <br>
+                version <a id="version" href="https://gitlab.com/malago/simplephy" target="_blank"></a>
+            </div>
+            <div class="credits" style="left:5%; width:25%; text-align:left"><a
+                    href="https://doi.org/10.3758/s13428-020-01515-z" target="_blank">Lago, Miguel A., “SimplePhy: An
+                    open-source tool for quick online perception experiments”. <i>Behav. Res</i> (2020)
+                </a>
+            </div>
+
+            <div class="error" style='display:none'></div>
+
+            <div class="dev">
+                <pre id="content" style="white-space: pre-wrap;"></pre>
+            </div>
+            <p id="local-drive-files" style="display:none">
+                <label for="local-drive-experiment" class="file-upload">
+                    <i class="fa fa-cloud-upload"></i> Choose stimuli folder
+                </label>
+                <input type="file" id="local-drive-experiment" name="fileListExperiment" webkitdirectory multiple />
+            </p>
+            <p><input id="name" type="text" placeholder="Participant ID" value="" /> <input type="button"
+                    id="start-experiment" value="Start!" />
+                <span id="google-login" class="hidden">
+                    <button id="authorize_button" onclick="handleAuthClick();" style="padding:5px"
+                        title="Login with Google"><i class="fab fa-google"></i></button>
+                    <button id="signout_button" style="display: none;" onclick="handleSignoutClick();"
+                        title="Sign Out from Google"><i class="fas fa-sign-out-alt"></i></button>
+                </span>
+            </p>
+            <p>By clicking on Start you accept the experiment conditions and consent form (if given).</p>
+
+
+            <form class="form-box" id="form-box">
+                <div class="created">
+                    <p style="font-weight: bold;
+                border-bottom: 2px solid white;
+                margin: auto;
+                margin-bottom: 15px;
+                width: 80%;"><i class="fas fa-search"></i></i> Your latest created experiments</p>
+                    <ul class="created-list">
+
+                    </ul>
+                </div>
+                <p style="font-weight: bold;
+                border-bottom: 2px solid white;
+                margin: auto;
+                margin-bottom: 15px;
+                width: 80%;" id="create-title"><i class="far fa-plus-square icon"></i> Create experiment
+                </p>
+                <div id="create-toggle">
+                    <div title="Generate advanced options" id="advanced-options"><i
+                            class="fas fa-external-link-alt"></i></div>
+                    <p>
+                    <h3><a href="https://gitlab.com/malago/simplephy/-/wikis/home" target="_blank">See tutorial</a></h3>
+                    </p>
+
+                    <table>
+                        <tr>
+                            <th>Title</th>
+                            <td><input id="title" type="text" style="width:100%;text-align:center"
+                                    placeholder="optional" /></td>
+                        </tr>
+                        <tr>
+                            <th>Instructions URL</th>
+                            <td><input id="instructions" type="text" placeholder="optional"
+                                    style="width:100%;text-align:center" /></td>
+                        </tr>
+                        <tr>
+                            <th># ratings</th>
+                            <td>
+                                <div id="slider-value">8</div>
+                                <div class="slidecontainer">
+                                    <input type="range" min="1" max="12" value="8" class="slider" id="ratings">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Allowed keys <i title="Comma-separated list of allowed keyboard key codes to continue"
+                                    class="tooltip far fa-question-circle"></i></th>
+                            <td><input id="keys" type="text" value="Space"
+                                    style="font-size:80%;color:#b7b7b7;width:60%;text-align:center;float: left;line-height: 23px;"
+                                    disabled="disabled" />
+                                <div id="generate-keys" class="button"
+                                    style="border-width: 1px;height: 100%;margin: 0;display: block;float: right;line-height: 5px;margin-left: 2px;font-size: 80%;" />
+                                Edit...
+                </div>
+                </tr>
+                <tr>
+                    <th>Randomize trials</th>
+                    <td>
+                        <select id="randomize" style="width:100%;font-size:16px;margin-top:0;height:26px;">
+                            <option value="all" title="Randomize all trials regardless of the condition">Randomize all
+                            </option>
+                            <option value="consecutiverandom"
+                                title="Consecutive conditions, randomize trial order for each condition (only for conditions with same number of trials)">
+                                Consecutive conditions, random trials</option>
+                            <option value="randomrandom"
+                                title="Block conditions and randomize their order, randomize trials inside the conditions">
+                                Random blocks, random trials</option>
+                            <option value="keeprandom"
+                                title="Block conditions and keep their order, randomize trials inside the conditions">
+                                Ordered blocks, random trials</option>
+                            <option value="randomkeep"
+                                title="Block conditions and randomize their order, keep trial order inside the conditions">
+                                Random blocks, ordered trials</option>
+                            <option value="keepkeep" title="Keep order for conditions and trials inside the conditions">
+                                Do not randomize</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Multiple stimuli <i title="Behavior if several images are found in each stimulus folder"
+                            class="tooltip far fa-question-circle"></i></th>
+                    <td>
+                        <select id="multiple" style="font-size:16px;margin-top:0;height:26px;width:100%">
+                            <option value="first" title="Trial images will be displayed sequentially">Sequential
+                                (default)</option>
+                            <option value="MAFC" title="Trial images will be shown in a 2D grid">MAFC (grid)</option>
+                            <option value="MAFCcircle" title="Trial images will be shown in a circle">MAFC (circle)
+                            </option>
+                            <option value="3D" title="Trial images will be shown as a stack of 2D images">3D scroll
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Calibration interval (min)<i
+                            title="Activate estimation of reading distance. Recalibration interval in minutes, set to empty or 0 to disable"
+                            class="tooltip far fa-question-circle"></i></th>
+                    <td><input id="calibration" type="number" placeholder="calibration"
+                            style="width:100%;text-align:center" value="" placeholder="Optional" /></td>
+                </tr>
+                <tr>
+                    <th>Trial timeout (ms) <i title="In milliseconds, set to empty or 0 to disable"
+                            class="tooltip far fa-question-circle"></i></th>
+                    <td><input id="timeout" type="text" placeholder="optional" style="width:100%;text-align:center" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input id="mark" type="checkbox" name="mark"
+                            style="width:100%;text-align:center" /><label for="mark">Marks <i
+                                title="Allow double click to create marks"
+                                class="tooltip far fa-question-circle"></i></label> <input id="fixationGrid"
+                            type="checkbox" style="width:100%;text-align:center" name="fixationGrid" /><label
+                            for="fixationGrid">Fixation Grid <i
+                                title="Activate to show a fixation grid and ask the participant which code they saw"
+                                class="tooltip far fa-question-circle"></i></label></td>
+                </tr>
+                </table>
+                <br>
+                <input type="button" id="google-drive-select" value="Find stimuli on Google Drive" />
+                <input type="button" id="local-drive-select" value="Find stimuli locally" /><br>
+                <input type="button" id="create-experiment" value="Create experiment" class="disabled" />
+        </div>
+        </form>
+
+    </div>
+    <div id="loading-bar">
+        <div id="loading-bar-text">Loading... <i class="fas fa-spinner fa-spin"></i></div>
+        <div id="loading-bar-progress"></div>
+    </div>
+
+    <div id="trial-container">
+        <div class="cell">
+            <div class="text">
+                <div>Find the signal in the image. Use the mouse wheel or drag the scrollbar to change the slice<br><br>
+                    Press ESC to quit the experiment, data will be lost<br><br>
+                    Press SPACEBAR to continue
+                </div>
+            </div>
+            <div id="stimulus-container">
+                <div id="trial-number"></div>
+                <div id="stimulus-slice">Slice: 1</div>
+                <div id="stimulus">
+                    <img class="stimulus-img">
+                </div>
+                <div id="stimulus-scroll-bar">
+                    <div id="stimulus-scroll-background"></div>
+                    <div id="stimulus-scroll-position"></div>
+                </div>
+                <div id="fixation-grid">
+
+                </div>
+                <!--<div class="instructions" id="trial-spacebar">Press SPACEBAR to continue</div>-->
+            </div>
+
+        </div>
+    </div>
+
+    <div id="response-container">
+        <span>
+            <div id="response-text"></div>
+            <div id="confidence-scale">
+                <div class="rating absent" num="1">1</div>
+                <div class="rating present" num="2">2</div>
+            </div>
+        </span>
+    </div>
+
+    <div id="feedback-container">
+        <div class="cell">
+            <img class="stimulus-img">
+            <div class="instructions">Press SPACEBAR to continue</div>
+        </div>
+    </div>
+
+    <div id="finished-container">
+        <div class="instructions" style="margin-top:100px">
+            <p>You finished all the trials, your data has been uploaded!</p>
+            <p>Thanks for participating, <a href=".">click here to go back</a>.</p>
+            <p><span id="download-data"></span></p>
+        </div>
+    </div>
+
+    <div id="help" class="form-box">
+        <p id="resolution"></p>
+        <p id="monitor-size"></p>
+        <p id="image-size"></p>
+        <p id="image-real-size"></p>
+        <p id="distance-required"></p>
+    </div>
+
+    <div class="popup" id="help-screen">
+        <p></p>
+        <img src="/images/screen-measurement.png" height="300">
+        <p>Measure your screen in cm or inches.</p>
+        <p>Do not measure the screen border, only the interior of the display.</p>
+        <div class="close">&#10060;</div>
+    </div>
+    </div>
+
+    <div id="calibration-dialog" class="popup">
+        <div class="close">&#10060;</div>
+        <div id="calibration-step1">
+            <p>Place a credit card in the top left corner of the square.</p>
+            <p>Adjust the slider to match the size of your credit card in the screen.</p>
+            <p style="font-size: 12px;
+            bottom: 0;
+            position: absolute;
+            left: 0;
+            width: 50%;
+            margin: 10px;">Li, Q., Joo, S.J., Yeatman, J.D. et al. Controlling for Participants' Viewing Distance in
+                Large-Scale, Psychophysical Online Experiments Using a Virtual Chinrest. Sci Rep 10, 904 (2020). <a
+                    href="https://doi.org/10.1038/s41598-019-57204-1" target="_blank">doi:10.1038/s41598-019-57204-1</a>
+            </p>
+            <div class="credit-card-slider">
+                <div class="credit-card-slider-position"></div>
+            </div>
+            <div class="credit-card-outline"></div>
+            <div class="button">Continue</div>
+        </div>
+        <div id="calibration-step2" style="display:none">
+            <p>Close your <strong>RIGHT eye</strong> and look at the cross.</p>
+            <p>Without moving your eyes, press SPACEBAR when the white dot dissapears from your sight.</p>
+            <div class="blind-spot-container">
+                <div class="blind-spot-cross"></div>
+                <div class="blind-spot-dot"></div>
+            </div>
+        </div>
+        <div id="calibration-step3" style="display:none">
+            <h1>Calibration succeded, <strong>do not move your head</strong> or adjust your body position. <br>
+                You can start the experiment.</h1>
+            <div class="button">Finish</div>
+        </div>
+    </div>
+
+    <div class="popup" id="google-drive-dialog">
+        <div class="close">&#10060;</div>
+        <p>Introduce the Google Drive Folder ID: <input id="google-drive-url" type="text"
+                placeholder="https://drive.google.com/drive/..." style="font-size:20px; width:90%;text-align:center"
+                value="" />
+        <p><input type="button" id="google-drive-submit" value="Find files" /></p>
+        <div id="google-drive-result"></div>
+        <div class="button">Finish</div>
+    </div>
+
+    <div class="popup" id="local-drive-dialog">
+        <div class="close">&#10060;</div>
+        <p><strong>Warning:</strong> If you choose to use SimplePhy with local files, you will need to provide all your
+            participants with the stimuli you are using here. <br>You can upload them as a compressed file that they can
+            download.</p>
+        <p>Select the folder that contains your input files:</p>
+        <p><label for="local-drive-submit" class="file-upload">
+                <i class="fa fa-cloud-upload"></i> Choose stimuli folder
+            </label>
+            <input type="file" id="local-drive-submit" name="fileList" webkitdirectory multiple value="Find files" />
+        </p>
+        <div id="local-drive-result"></div>
+        <div class="button">Finish</div>
+    </div>
+
+    <div class="popup" id="advanced-options-dialog">
+        <div class="close">&#10060;</div>
+        <h2>Advanced options generator</h2>
+        <table style="width:66%;margin:auto">
+            <tr>
+                <td style="width: 30%;text-align: right;">Text before the trial:</td>
+                <td><input type="text" style="width:90%;margin: 0;" class="advanced-options-text"
+                        title="Optional. Text to be shown before the trial starts" /></td>
+            </tr>
+            <tr>
+                <td style="width: 30%;text-align: right;">Correct key:</td>
+                <td><input type="text" style="width:90%;margin: 0;" class="advanced-options-key"
+                        title="Optional. Correct key pressed on the keyboard from the list of allowed keys" /></td>
+            </tr>
+        </table>
+        <h3>Custom questions:</h3>
+        <div id="advanced-options-list">
+            <div class="advanced-option" num="0">
+                <select class="advanced-options-new">
+                    <option value="none">None</option>
+                    <option value="text" title="Text input field">Text</option>
+                    <option value="select" title="Selection of options">Options</option>
+                    <option value="ratings" title="Rating scale">Ratings</option>
+                </select><span class="options"></span>
+            </div>
+            <div class="advanced-option-add">
+                <i class="fas fa-folder-plus"></i>
+            </div>
+        </div>
+        <div class="button" title="Place the downloaded file inside the trial folder">Download and close</div>
+    </div>
+
+    <div id="cheatcode" class="hidden"><i class='fas fa-bug'></i></div>
+
+    <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"
+        onreadystatechange="if (this.readyState === 'complete') this.onload()">
+        </script>
+
+</body>
