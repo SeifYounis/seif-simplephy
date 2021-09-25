@@ -660,6 +660,8 @@ function saveTrial(responses) {
                 }
             }
         }
+
+        // This is where the answer flashes either correct or incorrect
         if (correctResponse) {
             $("#feedback-container .cell .stimulus-img").replaceWith("<div class='stimulus-img correct'>CORRECT</div>");
         } else {
